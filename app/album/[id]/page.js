@@ -2,24 +2,26 @@
 import { formatDuration } from "@/utils";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { BiPlayCircle } from "react-icons/bi";
+import { BiPlayCircle, BiPauseCircle } from "react-icons/bi";
 
 const Page = ({ params }) => {
 	const { id } = React.use(params);
 	const [album, setAlbum] = useState(null);
 	const [tracks, setTracks] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [playing, setPlaying] = useState(false);
 
 	const previewSong = async (track) => {
 		const spotifyUrl = track.external_urls.spotify;
 		const res = await fetch("/api/tracks/" + track.id);
 		const data = await res.json();
-
-		console.log(data.data);
 		const audio = new Audio(data.data);
+		setPlaying(true);
 		audio.play();
 
-		console.log(data);
+		audio.addEventListener("ended", () => {
+			setPlaying(false);
+		});
 	};
 
 	const playSong = (track) => {
@@ -76,7 +78,7 @@ const Page = ({ params }) => {
 					<div key={track.id} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
 						<div className="w-1/24 flex items-center justify-center">
 							<button className="cursor-pointer" onClick={() => previewSong(track)}>
-								<BiPlayCircle size={24} className="text-white" />
+								{playing ? <BiPauseCircle size={24} className="text-white" /> : <BiPlayCircle size={24} className="text-white" />}
 							</button>
 						</div>
 						<h1 className="w-5/6">{track.name}</h1>
