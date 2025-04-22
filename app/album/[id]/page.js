@@ -10,12 +10,13 @@ const Page = ({ params }) => {
 	const [tracks, setTracks] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [playing, setPlaying] = useState(false);
+	const [activeTrack, setActiveTrack] = useState(null);
 
 	const previewSong = async (track) => {
-		const spotifyUrl = track.external_urls.spotify;
+		setActiveTrack(track);
 		const res = await fetch("/api/tracks/" + track.id);
 		const data = await res.json();
-		const audio = new Audio(data.data);
+		const audio = new Audio(data.data[0]);
 		setPlaying(true);
 		audio.play();
 
@@ -78,10 +79,14 @@ const Page = ({ params }) => {
 					<div key={track.id} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
 						<div className="w-1/24 flex items-center justify-center">
 							<button className="cursor-pointer" onClick={() => previewSong(track)}>
-								{playing ? <BiPauseCircle size={24} className="text-white" /> : <BiPlayCircle size={24} className="text-white" />}
+								{playing && activeTrack?.id === track.id ? (
+									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+								) : (
+									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+								)}
 							</button>
 						</div>
-						<h1 className="w-5/6">{track.name}</h1>
+						<h1 className={`w-5/6 ${activeTrack?.id === track.id && "text-green-500"}`}>{track.name}</h1>
 						{/* onMouseEnter={() => previewSong(track)} */}
 						<h1 className="w-1/8">{formatDuration(track.duration_ms)}</h1>
 					</div>
