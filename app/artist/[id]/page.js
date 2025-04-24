@@ -17,22 +17,19 @@ const ArtistPage = ({ params }) => {
 	const artist = useSelector((state) => state.artists.data.find((artist) => artist.id === id));
 	const dispatch = useDispatch();
 
-	console.log(artist);
+	const hasAlbums = artist?.album?.length > 0;
 
 	useEffect(() => {
-		if (!artist?.album || artist?.album.length == 0) {
+		if (!hasAlbums) {
 			const fetchAlbum = async (id) => {
 				const res = await fetch("/api/albums?artist=" + id);
 				const data = await res.json();
-
 				dispatch(setAlbums({ artistId: id, albums: data.data }));
-
-				console.log(data);
 			};
 
 			fetchAlbum(id);
 		}
-	}, [id, dispatch, artist]);
+	}, [id, hasAlbums, dispatch]);
 
 	return (
 		<div className="p-10 w-full">
@@ -67,7 +64,9 @@ const ArtistPage = ({ params }) => {
 					<button className="cursor-pointer" onClick={() => setView("list")}>
 						<BiListUl size={24} />
 					</button>
-					<button className="rounded-md border border-green-700 py-2 px-5 cursor-pointer">All Songs</button>
+					<button className="rounded-md border border-green-700 py-2 px-5 cursor-pointer" onClick={() => setView("all")}>
+						All Songs
+					</button>
 				</div>
 			</div>
 			{artist && artist.albums && artist.albums.length > 0 ? (
@@ -82,7 +81,7 @@ const ArtistPage = ({ params }) => {
 								date={album.release_date}
 								songs={album.total_tracks}
 							/>
-						) : (
+						) : view === "list" ? ( // Fixed typo here
 							<ListAlbumView
 								id={album.id}
 								key={album.id} // Move key prop here
@@ -91,6 +90,8 @@ const ArtistPage = ({ params }) => {
 								date={album.release_date}
 								songs={album.total_tracks}
 							/>
+						) : (
+							<h1 key={album.id}>All Songs</h1>
 						)
 					)}
 				</div>
