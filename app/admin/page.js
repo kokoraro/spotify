@@ -1,0 +1,120 @@
+'use client';
+
+import Loading from "@/components/Loader";
+import Modal from "@/components/Modal"
+import Image from "next/image";
+import React, { useState } from "react"
+import { AiOutlinePlus } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from 'react-toastify'
+import { setArtists } from "../redux/slices/artistSlice";
+
+const Admin = () => {
+    const dispatch = useDispatch();
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [artistId, setArtistId] = useState("");
+    const [stage, setStage] = useState("init")
+    const [album, setAlbum] = useState(null)
+
+    const artists = useSelector((state) => state.artists.data);
+
+    const handleAddClick = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const addNewArtist = async () => {
+        setIsModalOpen(false)
+        if (artistId && artistId != "") {
+            setStage("fetch_albums");
+            const res = await fetch(`/api/spotify/artists?id=${artistId}`);
+            const data = await res.json();
+            const albumIds = data.data;
+
+            console.log(albumIds)
+            setStage("fetch_tracks");
+            let i = 0;
+            for (const id of albumIds) {
+                if (i >= 2) break;
+                console.log(artistId, id)
+                const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`)
+                const data = await res.json();
+
+                if (i == 0) setAlbum(data.data)
+                i++;
+            }
+            setStage("init");
+            const fetchArtists = async () => {
+                const res = await fetch(`/api/artists`); // Send the IDs as a query parameter
+                const result = await res.json();
+                dispatch(setArtists(result.data));
+            };
+
+            fetchArtists();
+        } else {
+            toast("Invalid Artist Id")
+        }
+        setArtistId("")
+    }
+
+    return (
+        <div className="p-20 w-full">
+            <h1 className="text-4xl mb-5">Settings</h1>
+            <div className="pl-10 w-full flex flex-col gap-5">
+                <div>
+                    <h2 className="text-2xl pb-3 border-b border-b-[#01793456]">Channel</h2>
+                    <div className="flex gap-12 p-8 flex-wrap">
+                        {artists.map(artist => (
+                            <div key={artist.spotifyId} className="w-48 rounded-md h-62 flex border-2 shadow-lg shadow-green-700 border-gray-500 flex-col gap-3 cursor-pointer">
+                                <Image src={artist.images[0].src} alt="No Preview" width={artist.images[0].width} height={artist.images[0].height} className="w-full aspect-square rounded-t-md border-b border-[#12c95664]" />
+                                <h1 className="text-center">{artist.name}</h1>
+                            </div>
+                        ))}
+                        <div className="w-48 rounded-md h-62 flex justify-center items-center border-dashed border-2 border-gray-500 flex-col gap-3 cursor-pointer" onClick={handleAddClick}>
+                            {stage == "init" ? <>
+                                <button>
+                                    <AiOutlinePlus size={24} />
+                                </button>
+                                <p> Add New </p></> :
+                                stage === "fetch_albums" ? (<h1><Loading title={"Fetching Albums"} /></h1>) :
+                                    stage === "fetch_tracks" ? (<h1> <Loading title={"Fetching Tracks"} /></h1>) :
+                                        (<>
+                                            Hello
+                                        </>)
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 className="text-2xl pb-3 border-b border-b-[#01793456]">Update</h2>
+                    <div className="flex gap-4 p-8 flex-col text-xl">
+                        <h2>Last Update : {"1 day ago"}</h2>
+                        <div className="flex w-fit items-center gap-3">
+                            <h2>Schedule : </h2>
+                            <select className="bg-black p-1 border-b border-b-[#01793456] outline-0">
+                                <option value="weekly">1 Week</option>
+                                <option value="day">1 Day</option>
+                            </select>
+                        </div>
+                        <div className="ml-auto mr-8 flex gap-6">
+                            <button className="rounded-md px-8 py-2 bg-[#017934] cursor-pointer">Save</button>
+                            <button className="rounded-md px-5 py-2 bg-[#017934] cursor-pointer">Update Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+                <div className="p-4">
+                    <h1 className="mb-3 text-xl">New Channel</h1>
+                    <input type="text" name="channel" className="p-1 border rounded-sm" value={artistId} onChange={(e) => setArtistId(e.target.value)} />
+                    <button type="button" className="bg-[#017934] cursor-pointer px-3 py-2 rounded ml-4" onClick={addNewArtist}>Add New</button>
+                </div>
+            </Modal>
+        </div>
+    )
+}
+
+export default Admin

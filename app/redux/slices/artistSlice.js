@@ -1,30 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-	data: []
+    data: [],
+    fetched: false
 };
 
 const artistSlice = createSlice({
-	name: "auth",
-	initialState,
-	reducers: {
-		setArtists: (state, action) => {
-			state.data = action.payload;
-		},
+    name: "auth",
+    initialState,
+    reducers: {
+        setArtists: (state, action) => {
+            state.data = action.payload;
+            state.fetched = true;
+        },
         addArtist: (state, action) => {
             state.data = [...state.data, action.payload]
-        },
-        setAlbums: (state, action) => {
-            const {artistId, albums} = action.payload
-            console.log(artistId, albums)
-            const artist = state.data.find(artist => artist.id === artistId)
-            if(artist){
-                artist.albums = albums;
-            }
         }
-	},
+    },
 });
 
-export const { setArtists, addArtist, setAlbums } = artistSlice.actions;
+export const { setArtists, addArtist } = artistSlice.actions;
 
 export default artistSlice.reducer;

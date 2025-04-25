@@ -33,14 +33,14 @@ const Page = ({ params }) => {
 		const fetchAlbum = async () => {
 			try {
 				const res = await fetch(`/api/albums/${id}`);
-				if (res.ok) {
-					const data = await res.json();
-					console.log(data);
-					setAlbum(data.data);
-					setTracks(data.tracks);
-				} else {
-					console.error("Album not found");
-				}
+				const data = await res.json();
+				console.log(data.data);
+				setAlbum(data.data);
+
+				const trackRes = await fetch(`/api/tracks/${id}`)
+				const trackData = await trackRes.json();
+				console.log(trackData.data)
+				setTracks(trackData.data);
 			} catch (error) {
 				console.error("Error fetching album:", error);
 			} finally {
@@ -58,7 +58,7 @@ const Page = ({ params }) => {
 	return (
 		<div className="p-10 w-full">
 			<div className="px-2 pt-3 pb-5 flex gap-4 w-full">
-				<Image src={album.images[0].url} width={album.images[0].width} height={album.images[0].height} alt={album.name} className="w-[150px] aspect-square rounded-md" priority={true} />
+				<Image src={album.images[0].src} width={album.images[0].width} height={album.images[0].height} alt={album.name} className="w-[150px] aspect-square rounded-md" priority={true} />
 				<div className="flex justify-center flex-col gap-4">
 					<h1 className="text-3xl">{album.name}</h1>
 					<h2 className="text-md">
@@ -76,18 +76,18 @@ const Page = ({ params }) => {
 					<h2 className="w-1/8">Duration</h2>
 				</div>
 				{tracks.map((track) => (
-					<div key={track.id} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
+					<div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
 						<div className="w-1/24 flex items-center justify-center">
 							<button className="cursor-pointer" onClick={() => previewSong(track)}>
-								{playing && activeTrack?.id === track.id ? (
-									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+								{playing && activeTrack?.trackId === track.trackId ? (
+									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								) : (
-									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								)}
 							</button>
 						</div>
-						<h1 className={`w-5/6 ${activeTrack?.id === track.id && "text-green-500"}`}>{track.name}</h1>
-						{/* onMouseEnter={() => previewSong(track)} */}
+						<h1 className={`w-5/6 ${activeTrack?.trackId === track.trackId && "text-green-500"}`}>{track.name}</h1>
+
 						<h1 className="w-1/8">{formatDuration(track.duration_ms)}</h1>
 					</div>
 				))}

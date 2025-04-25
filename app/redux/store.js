@@ -2,15 +2,16 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
-import artistReducer from './slices/artistSlice'
+import artistReducer from './slices/artistSlice';
+import albumReducer from './slices/albumSlice';
 
-// Create the store
 const store = configureStore({
 	reducer: {
 		auth: authReducer,
-		artists: artistReducer
+		artists: artistReducer,
+		albums: albumReducer
 	},
-	middleware: (getDefaultMiddleware) =>getDefaultMiddleware({serializableCheck: false}),
+	middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
 });
 
 export default store;

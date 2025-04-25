@@ -1,4 +1,4 @@
-import Album from "@/models/albumModel";
+import Track from "@/models/trackModel";
 
 export async function GET(req) {
     const url = new URL(req.url);
@@ -15,9 +15,7 @@ export async function GET(req) {
         });
     }
 
-    const albums = await Album.find({ artistId })
-
-    console.log("Here")
+    const albums = await Track.find({ artistId })
 
     return new Response(JSON.stringify({ data: albums }), {
         status: 200,

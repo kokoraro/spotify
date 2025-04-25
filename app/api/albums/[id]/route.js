@@ -1,36 +1,12 @@
-import spotifyApi from "../../spotify"; // Import the shared SpotifyWebApi instance
+import Album from "@/models/albumModel";
+import Track from "@/models/trackModel";
 
 export async function GET(req, { params }) {
 	const { id } = await params;
 
-	const dd = await spotifyApi.clientCredentialsGrant();
-	const token = dd.body["access_token"];
-	spotifyApi.setAccessToken(token);
+	const album = await Album.findOne({ albumId: id })
 
-	if (!id) {
-		return new Response(JSON.stringify({ error: "No artist IDs provided" }), {
-			status: 400,
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
-	}
-
-	const data = await spotifyApi.getAlbum(id);
-
-	let tracksResponse = await spotifyApi.getAlbumTracks(id);
-	let tracks = tracksResponse.body.items;
-
-	while (tracksResponse.body.next) {
-		tracksResponse = await spotifyApi.getAlbumTracks(id, { offset: tracks.length });
-		tracks.push(...tracksResponse.body.items);
-	}
-
-	let filteredTracks = tracks.filter((track) => track.duration_ms >= 120000);
-
-	console.log(filteredTracks);
-
-	return new Response(JSON.stringify({ data: data.body, tracks: filteredTracks }), {
+	return new Response(JSON.stringify({ data: album }), {
 		status: 200,
 		headers: {
 			"Content-Type": "application/json",

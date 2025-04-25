@@ -1,0 +1,54 @@
+'use client';
+import { formatDuration } from "@/utils";
+import { useEffect, useState } from "react"
+import { BiPauseCircle, BiPlayCircle } from "react-icons/bi";
+
+const AllSongs = ({ artistId }) => {
+    const [tracks, setTracks] = useState([])
+    const [playing, setPlaying] = useState(false)
+    const [activeTrack, setActiveTrack] = useState(null)
+
+    useEffect(() => {
+        const fetchTracks = async () => {
+            const response = await fetch("/api/tracks?artist=" + artistId);
+            const res = await response.json();
+
+            setTracks(res.data)
+        }
+
+        fetchTracks();
+    }, [])
+
+    const previewSong = (id) => {
+
+    }
+
+    return (
+        <div>
+            <div className="flex border-b border-[#01782364] mb-3 pb-2">
+                <h1 className="w-1/24 text-center">#</h1>
+                <h1 className="w-5/6">Title</h1>
+                <h2 className="w-1/8">Duration</h2>
+            </div>
+            {tracks && tracks.length > 0 && tracks.map((track, idx) => (
+                <div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
+                    <div className="w-1/24 flex items-center justify-center">
+                        <button className="cursor-pointer" onClick={() => previewSong(track)}>
+                            {playing && activeTrack?.id === track.trackId ? (
+                                <BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.trackId ? "green" : "white"}`} />
+                            ) : (
+                                <BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+                            )}
+                        </button>
+                    </div>
+                    <h1 className={`w-5/6 ${activeTrack?.id === track.trackId && "text-green-500"}`}>{track.name}</h1>
+                    {/* onMouseEnter={() => previewSong(track)} */}
+                    <h1 className="w-1/8">{formatDuration(track.duration_ms)}</h1>
+                </div>
+            ))}
+
+        </div>
+    )
+}
+
+export default AllSongs

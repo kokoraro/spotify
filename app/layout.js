@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
 import ReduxProvider from "./redux/ReduxProvider";
 import "./globals.css";
-import PlayerBar from "@/components/PlayerBar";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -28,6 +28,7 @@ export default function RootLayout({ children }) {
 						<Sidebar />
 						{children}
 					</div>
+					<ToastContainer />
 				</ReduxProvider>
 			</body>
 		</html>

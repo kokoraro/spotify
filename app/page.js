@@ -10,7 +10,7 @@ function Home() {
 			<div className="flex justify-between mt-20 mx-10">
 				{artists && artists.length > 0 && artists.map((item, index) => (
 					<div className="w-1/5" key={index}>
-						<Card title={item?.name} link={item?.id}/>
+						<Card title={item?.name} link={item?.id} />
 					</div>
 				))}
 			</div>
