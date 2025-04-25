@@ -48,7 +48,7 @@ const Admin = () => {
             }
             setStage("init");
             const fetchArtists = async () => {
-                const res = await fetch(`/api/artists`); // Send the IDs as a query parameter
+                const res = await fetch(`/api/artists`);
                 const result = await res.json();
                 dispatch(setArtists(result.data));
             };
