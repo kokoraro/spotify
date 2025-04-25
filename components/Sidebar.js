@@ -3,18 +3,21 @@ import { BiPlus } from "react-icons/bi";
 import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { setArtists } from "@/app/redux/slices/artistSlice";
 import { setCredential } from "@/app/redux/slices/authSlice";
+import Loading from "./Loader";
 
 function Sidebar() {
 	const dispatch = useDispatch();
 	const token = useSelector((state) => state.auth.token);
 	const artists = useSelector((state) => state.artists.data);
-	const fetched = useSelector(state => state.artists.fetched);
+	const fetched = useSelector((state) => state.artists.fetched);
+	const [loading, setLoading] = useState("init");
 
 	useEffect(() => {
 		if (!token) {
+			setLoading("auth");
 			const fetchLogin = async () => {
 				const res = await fetch("/api/login");
 				const result = await res.json();
@@ -24,6 +27,7 @@ function Sidebar() {
 
 			fetchLogin();
 		} else if (!fetched) {
+			setLoading("fetch");
 			const fetchArtists = async () => {
 				const res = await fetch(`/api/artists`); // Send the IDs as a query parameter
 				const result = await res.json();
@@ -31,6 +35,7 @@ function Sidebar() {
 			};
 
 			fetchArtists();
+			setLoading("finish");
 		}
 	}, [token, dispatch, fetched]);
 
@@ -47,8 +52,9 @@ function Sidebar() {
 							<BiPlus size={24} />
 						</button>
 					</div>
+					{loading == "auth" ? <Loading title="Authenticating" /> : loading == "fetch" && <Loading title="Fetching Artists" />}
 
-					{artists && artists.length > 0 && (
+					{artists && artists.length > 0 && loading == "finish" && (
 						<ul className="p-3 flex flex-col gap-2">
 							{artists.map((item) => (
 								<Link key={item.spotifyId} href={`/artist/${item.spotifyId}`}>

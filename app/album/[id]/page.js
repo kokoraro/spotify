@@ -1,7 +1,8 @@
 "use client";
+import Loading from "@/components/Loader";
 import { formatDuration } from "@/utils";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BiPlayCircle, BiPauseCircle } from "react-icons/bi";
 
 const Page = ({ params }) => {
@@ -11,23 +12,43 @@ const Page = ({ params }) => {
 	const [loading, setLoading] = useState(true);
 	const [playing, setPlaying] = useState(false);
 	const [activeTrack, setActiveTrack] = useState(null);
+	const audioRef = useRef(null);
 
-	const previewSong = async (track) => {
-		setActiveTrack(track);
-		const res = await fetch("/api/tracks/" + track.id);
-		const data = await res.json();
-		const audio = new Audio(data.data[0]);
-		setPlaying(true);
-		audio.play();
-
-		audio.addEventListener("ended", () => {
-			setPlaying(false);
-		});
+	const togglePlay = (track) => {
+		if (activeTrack !== track) {
+			setActiveTrack(track);
+			setPlaying(true);
+		} else {
+			setPlaying((prev) => !prev); // Toggle play/pause
+		}
 	};
 
-	const playSong = (track) => {
-		console.log("hello");
-	};
+	useEffect(() => {
+		if (activeTrack) {
+			audioRef.current = new Audio(activeTrack.preview_url);
+
+			if (playing) {
+				audioRef.current.play();
+			} else {
+				audioRef.current.pause();
+			}
+
+			return () => {
+				audioRef.current.pause();
+				audioRef.current = null;
+			};
+		}
+	}, [activeTrack, playing]);
+
+	useEffect(() => {
+		if (audioRef.current) {
+			if (playing) {
+				audioRef.current.play();
+			} else {
+				audioRef.current.pause();
+			}
+		}
+	}, [playing]);
 
 	useEffect(() => {
 		const fetchAlbum = async () => {
@@ -37,9 +58,9 @@ const Page = ({ params }) => {
 				console.log(data.data);
 				setAlbum(data.data);
 
-				const trackRes = await fetch(`/api/tracks/${id}`)
+				const trackRes = await fetch(`/api/tracks/${id}`);
 				const trackData = await trackRes.json();
-				console.log(trackData.data)
+				console.log(trackData.data);
 				setTracks(trackData.data);
 			} catch (error) {
 				console.error("Error fetching album:", error);
@@ -48,12 +69,17 @@ const Page = ({ params }) => {
 			}
 		};
 
-		fetchAlbum(); // Call the fetch function
-	}, [id]); // Dependency array to run effect when ID changes
+		fetchAlbum();
+	}, [id]);
 
-	if (loading) return <div>Loading...</div>; // Handle loading state
+	if (loading)
+		return (
+			<div className="flex justify-center items-center w-full">
+				<Loading title="Loading Tracks" />
+			</div>
+		);
 
-	if (!album) return <div>Album not found</div>; // Handle not found case
+	if (!album) return <div>Album not found</div>;
 
 	return (
 		<div className="p-10 w-full">
@@ -78,7 +104,7 @@ const Page = ({ params }) => {
 				{tracks.map((track) => (
 					<div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
 						<div className="w-1/24 flex items-center justify-center">
-							<button className="cursor-pointer" onClick={() => previewSong(track)}>
+							<button className="cursor-pointer" onClick={() => togglePlay(track)}>
 								{playing && activeTrack?.trackId === track.trackId ? (
 									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								) : (
