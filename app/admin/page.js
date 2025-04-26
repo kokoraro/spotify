@@ -80,10 +80,10 @@ const Admin = () => {
 				for (const id of albumIds) {
 					console.log(artistId, id);
 					i++;
+					setReadAlbum((prev) => prev + 1);
 					if (i < lastRead) continue;
 					const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
 					const data = await res.json();
-					setReadAlbum((prev) => prev + 1);
 				}
 				setStage("init");
 				const fetchArtists = async () => {
