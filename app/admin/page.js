@@ -16,8 +16,8 @@ const Admin = () => {
 	const [stage, setStage] = useState("init");
 	const [readAlbum, setReadAlbum] = useState(0);
 	const [totalAlbums, setTotalAlbums] = useState(0);
-	const [lastRead, setLastRead] = useState(0);
-	const [totalRead, setTotalRead] = useState(0);
+	const [from, setFrom] = useState(0);
+	const [until, setUntil] = useState(0);
 
 	const artists = useSelector((state) => state.artists.data);
 
@@ -32,7 +32,6 @@ const Admin = () => {
 	const addNewArtist = async () => {
 		setReadAlbum(0);
 		setIsModalOpen(false);
-		let i = 0;
 		if (artistId && artistId != "") {
 			setStage("fetch_albums");
 			const res = await fetch(`/api/spotify/artists?id=${artistId}`);
@@ -45,18 +44,11 @@ const Admin = () => {
 			for (const id of albumIds) {
 				console.log(artistId, id);
 				setReadAlbum((prev) => prev + 1);
-				if (readAlbum < lastRead) continue;
+				if (readAlbum < from) continue;
 				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
 			}
 			setReadAlbum(0);
 			setStage("init");
-			const fetchArtists = async () => {
-				const res = await fetch(`/api/artists`);
-				const result = await res.json();
-				dispatch(setArtists(result.data));
-			};
-
-			fetchArtists();
 		} else {
 			toast("Invalid Artist Id");
 		}
@@ -64,7 +56,7 @@ const Admin = () => {
 	};
 
 	const updateList = async () => {
-		setTotalRead(0);
+		let totalRead = 0;
 		// Fetch current Artists List
 		const res = await fetch(`/api/artists`);
 		const data = await res.json();
@@ -82,29 +74,46 @@ const Admin = () => {
 			setStage("fetch_tracks");
 			setTotalAlbums(albumIds.length);
 			for (const id of albumIds) {
-				console.log(artistId, id);
 				setReadAlbum((prev) => prev + 1);
-				setTotalRead((prev) => prev + 1);
-				if (totalRead < lastRead) continue;
+				totalRead++;
+				if (totalRead < from) continue;
+				if (totalRead > to) return;
 				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
-				// const data = await res.json();
 			}
 			setReadAlbum(0);
 			setStage("init");
-			const fetchArtists = async () => {
-				const res = await fetch(`/api/artists`);
-				const result = await res.json();
-				dispatch(setArtists(result.data));
-			};
-
-			fetchArtists();
 		}
 	};
 
 	return (
 		<div className="p-20 w-full">
 			<h1 className="text-4xl mb-5">Settings</h1>
-			<input type="number" value={lastRead} onChange={(e) => setLastRead(e.target.value)} />
+			<div className="test">
+				<span>From</span>
+				<input
+					type="number"
+					value={from}
+					min={0}
+					max={2900}
+					onChange={(e) => {
+						setFrom(e.target.value);
+						if (until < e.target.value) setUntil(e.target.value);
+					}}
+					className="outline-none ml-3 p-1 border border-green-700 rounded-md mr-8"
+				/>
+				<span>To</span>
+				<input
+					type="number"
+					value={until}
+					onChange={(e) => {
+						setUntil(e.target.value);
+						if (from > e.target.value) setFrom(0);
+					}}
+					min={0}
+					max={3000}
+					className="outline-none ml-3 p-1 border border-green-700 rounded-md mr-8"
+				/>
+			</div>
 			<div className="pl-10 w-full flex flex-col gap-5">
 				<div>
 					<h2 className="text-2xl pb-3 border-b border-b-[#01793456]">Channel</h2>
