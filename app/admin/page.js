@@ -8,7 +8,6 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setArtists } from "../redux/slices/artistSlice";
-import { last } from "cheerio/dist/commonjs/api/traversing";
 
 const Admin = () => {
 	const dispatch = useDispatch();
