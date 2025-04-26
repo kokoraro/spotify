@@ -63,6 +63,7 @@ export async function GET(req) {
 
 			let normalizedName = name.split("(")[0].trim();
 			normalizedName = normalizedName.split("-")[0].trim();
+			normalizedName = normalizedName.split("[")[0].trim();
 			if (keywords.some((keyword) => normalizedName.toLowerCase().includes(keyword))) continue;
 
 			console.log(normalizedName);
