@@ -1,6 +1,6 @@
 "use client";
 import { formatDuration } from "@/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiPauseCircle, BiPlayCircle } from "react-icons/bi";
 
 const AllSongs = ({ artistId }) => {
@@ -8,6 +8,16 @@ const AllSongs = ({ artistId }) => {
 	const [playing, setPlaying] = useState(false);
 	const [activeTrack, setActiveTrack] = useState(null);
 	const [loading, setLoading] = useState(false);
+	const audioRef = useRef(null);
+
+	const togglePlay = (track) => {
+		if (activeTrack !== track) {
+			setActiveTrack(track);
+			setPlaying(true);
+		} else {
+			setPlaying((prev) => !prev); // Toggle play/pause
+		}
+	};
 
 	useEffect(() => {
 		const fetchTracks = async () => {
@@ -20,7 +30,32 @@ const AllSongs = ({ artistId }) => {
 		fetchTracks();
 	}, []);
 
-	const previewSong = (id) => {};
+	useEffect(() => {
+		if (activeTrack) {
+			audioRef.current = new Audio(activeTrack.preview_url);
+
+			if (playing) {
+				audioRef.current.play();
+			} else {
+				audioRef.current.pause();
+			}
+
+			return () => {
+				audioRef.current.pause();
+				audioRef.current = null;
+			};
+		}
+	}, [activeTrack, playing]);
+
+	useEffect(() => {
+		if (audioRef.current) {
+			if (playing) {
+				audioRef.current.play();
+			} else {
+				audioRef.current.pause();
+			}
+		}
+	}, [playing]);
 
 	return (
 		<div>
@@ -34,15 +69,15 @@ const AllSongs = ({ artistId }) => {
 				tracks.map((track, idx) => (
 					<div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
 						<div className="w-1/24 flex items-center justify-center">
-							<button className="cursor-pointer" onClick={() => previewSong(track)}>
-								{playing && activeTrack?.id === track.trackId ? (
-									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.trackId ? "green" : "white"}`} />
+							<button className="cursor-pointer" onClick={() => togglePlay(track)}>
+								{playing && activeTrack?.trackId === track.trackId ? (
+									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								) : (
-									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.id === track.id ? "green" : "white"}`} />
+									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								)}
 							</button>
 						</div>
-						<h1 className={`w-5/6 ${activeTrack?.id === track.trackId && "text-green-500"}`}>{track.name}</h1>
+						<h1 className={`w-5/6 ${activeTrack?.trackId === track.trackId && "text-green-500"}`}>{track.name}</h1>
 						{/* onMouseEnter={() => previewSong(track)} */}
 						<h1 className="w-1/8">{formatDuration(track.duration_ms)}</h1>
 					</div>

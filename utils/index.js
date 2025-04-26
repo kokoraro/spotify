@@ -1,3 +1,25 @@
+import axios from "axios";
+import { load } from "cheerio";
+
+export async function getSpotifyLinks(url) {
+	try {
+		const response = await axios.get(url);
+		const html = response.data;
+		const $ = load(html);
+		const scdnLinks = new Set();
+
+		$("*").each((i, element) => {
+			const attrs = element.attribs;
+			Object.values(attrs).forEach((value) => {
+				if (value && value.includes("p.scdn.co")) {
+					scdnLinks.add(value);
+				}
+			});
+		});
+		return Array.from(scdnLinks);
+	} catch (error) {}
+}
+
 export const formatFollowers = (count) => {
 	if (count >= 1e6) {
 		return (count / 1e6).toFixed(1) + "M+"; // Format in millions
