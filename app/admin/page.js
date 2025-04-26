@@ -8,6 +8,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setArtists } from "../redux/slices/artistSlice";
+import { last } from "cheerio/dist/commonjs/api/traversing";
 
 const Admin = () => {
 	const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const Admin = () => {
 	const [stage, setStage] = useState("init");
 	const [readAlbum, setReadAlbum] = useState(0);
 	const [totalAlbums, setTotalAlbums] = useState(0);
+	const [lastRead, setLastRead] = useState(0);
 
 	const artists = useSelector((state) => state.artists.data);
 
@@ -65,6 +67,7 @@ const Admin = () => {
 
 		// Get updated Artists Data
 		const artistIds = artists.map((artist) => artist.spotifyId);
+		let i = 0;
 		for (const artistId of artistIds) {
 			if (artistId && artistId != "") {
 				setStage("fetch_albums");
@@ -77,6 +80,8 @@ const Admin = () => {
 				setTotalAlbums(albumIds.length);
 				for (const id of albumIds) {
 					console.log(artistId, id);
+					i++;
+					if (i < lastRead) continue;
 					const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
 					const data = await res.json();
 					setReadAlbum((prev) => prev + 1);
@@ -98,6 +103,7 @@ const Admin = () => {
 	return (
 		<div className="p-20 w-full">
 			<h1 className="text-4xl mb-5">Settings</h1>
+			<input type="number" value={lastRead} onChange={(e) => setLastRead(e.target.value)} />
 			<div className="pl-10 w-full flex flex-col gap-5">
 				<div>
 					<h2 className="text-2xl pb-3 border-b border-b-[#01793456]">Channel</h2>
