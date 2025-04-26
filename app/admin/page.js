@@ -78,7 +78,7 @@ const Admin = () => {
 				totalRead++;
 				console.log(totalRead);
 				if (totalRead < from) continue;
-				if (totalRead > to) return;
+				if (totalRead > until) return;
 				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
 			}
 			setReadAlbum(0);
