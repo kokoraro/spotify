@@ -17,6 +17,7 @@ const Admin = () => {
 	const [readAlbum, setReadAlbum] = useState(0);
 	const [totalAlbums, setTotalAlbums] = useState(0);
 	const [lastRead, setLastRead] = useState(0);
+	const [totalRead, setTotalRead] = useState(0);
 
 	const artists = useSelector((state) => state.artists.data);
 
@@ -29,7 +30,9 @@ const Admin = () => {
 	};
 
 	const addNewArtist = async () => {
+		setReadAlbum(0);
 		setIsModalOpen(false);
+		let i = 0;
 		if (artistId && artistId != "") {
 			setStage("fetch_albums");
 			const res = await fetch(`/api/spotify/artists?id=${artistId}`);
@@ -38,12 +41,14 @@ const Admin = () => {
 
 			console.log(albumIds);
 			setStage("fetch_tracks");
+			setTotalAlbums(albumIds.length);
 			for (const id of albumIds) {
 				console.log(artistId, id);
+				setReadAlbum((prev) => prev + 1);
+				if (readAlbum < lastRead) continue;
 				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
-				// const data = await res.json();
-				// setReadAlbum((prev) => prev + 1);
 			}
+			setReadAlbum(0);
 			setStage("init");
 			const fetchArtists = async () => {
 				const res = await fetch(`/api/artists`);
@@ -59,6 +64,7 @@ const Admin = () => {
 	};
 
 	const updateList = async () => {
+		setTotalRead(0);
 		// Fetch current Artists List
 		const res = await fetch(`/api/artists`);
 		const data = await res.json();
@@ -66,36 +72,32 @@ const Admin = () => {
 
 		// Get updated Artists Data
 		const artistIds = artists.map((artist) => artist.spotifyId);
-		let i = 0;
 		for (const artistId of artistIds) {
-			if (artistId && artistId != "") {
-				setStage("fetch_albums");
-				const res = await fetch(`/api/spotify/artists?id=${artistId}`);
+			setStage("fetch_albums");
+			const res = await fetch(`/api/spotify/artists?id=${artistId}`);
+			const data = await res.json();
+			const albumIds = data.data;
+
+			console.log(albumIds);
+			setStage("fetch_tracks");
+			setTotalAlbums(albumIds.length);
+			for (const id of albumIds) {
+				console.log(artistId, id);
+				setReadAlbum((prev) => prev + 1);
+				setTotalRead((prev) => prev + 1);
+				if (totalRead < lastRead) continue;
+				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
 				const data = await res.json();
-				const albumIds = data.data;
-
-				console.log(albumIds);
-				setStage("fetch_tracks");
-				setTotalAlbums(albumIds.length);
-				for (const id of albumIds) {
-					console.log(artistId, id);
-					i++;
-					setReadAlbum((prev) => prev + 1);
-					if (i < lastRead) continue;
-					const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
-					const data = await res.json();
-				}
-				setStage("init");
-				const fetchArtists = async () => {
-					const res = await fetch(`/api/artists`);
-					const result = await res.json();
-					dispatch(setArtists(result.data));
-				};
-
-				fetchArtists();
-			} else {
-				toast("Invalid Artist Id");
 			}
+			setReadAlbum(0);
+			setStage("init");
+			const fetchArtists = async () => {
+				const res = await fetch(`/api/artists`);
+				const result = await res.json();
+				dispatch(setArtists(result.data));
+			};
+
+			fetchArtists();
 		}
 	};
 

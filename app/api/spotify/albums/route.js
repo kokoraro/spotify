@@ -64,6 +64,7 @@ export async function GET(req) {
 			let normalizedName = name.split("(")[0].trim();
 			normalizedName = normalizedName.split("-")[0].trim();
 			normalizedName = normalizedName.split("[")[0].trim();
+			normalizedName = normalizedName.toCapitalize();
 			if (keywords.some((keyword) => normalizedName.toLowerCase().includes(keyword))) continue;
 
 			console.log(normalizedName);
@@ -78,6 +79,10 @@ export async function GET(req) {
 			if (!existingTrack) {
 				const newTrack = new Track(newTrackData);
 				await newTrack.save();
+			} else {
+				console.log("Exitsing Track");
+				existingTrack.albumId.push(albumId);
+				await existingTrack.save();
 			}
 		}
 
@@ -148,6 +153,11 @@ export async function GET(req) {
 				if (!existingTrack) {
 					const newTrack = new Track(newTrackData);
 					await newTrack.save();
+				} else {
+					if (!existingTrack.albumId.includes(albumId)) {
+						existingTrack.albumId.push(albumId);
+						await existingTrack.save();
+					}
 				}
 			}
 

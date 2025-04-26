@@ -7,7 +7,7 @@ const AllSongs = ({ artistId }) => {
 	const [tracks, setTracks] = useState([]);
 	const [playing, setPlaying] = useState(false);
 	const [activeTrack, setActiveTrack] = useState(null);
-	const [loading, setLoading] = useState(false);
+	const [hoverTrack, setHoverTrack] = useState(null);
 	const audioRef = useRef(null);
 
 	const togglePlay = (track) => {
@@ -67,10 +67,17 @@ const AllSongs = ({ artistId }) => {
 			{tracks &&
 				tracks.length > 0 &&
 				tracks.map((track, idx) => (
-					<div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
+					<div
+						key={track.trackId}
+						className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded"
+						onMouseEnter={() => setHoverTrack(track)}
+						onMouseLeave={() => setHoverTrack(null)}
+					>
 						<div className="w-1/24 flex items-center justify-center">
 							<button className="cursor-pointer" onClick={() => togglePlay(track)}>
-								{playing && activeTrack?.trackId === track.trackId ? (
+								{!(activeTrack?.trackId === track.trackId || (hoverTrack && hoverTrack?.trackId === track.trackId)) ? (
+									<h1>{idx + 1}</h1>
+								) : playing ? (
 									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								) : (
 									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />

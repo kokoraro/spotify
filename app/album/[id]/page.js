@@ -12,6 +12,7 @@ const Page = ({ params }) => {
 	const [loading, setLoading] = useState(true);
 	const [playing, setPlaying] = useState(false);
 	const [activeTrack, setActiveTrack] = useState(null);
+	const [hoverTrack, setHoverTrack] = useState(null);
 	const audioRef = useRef(null);
 
 	const togglePlay = (track) => {
@@ -87,12 +88,13 @@ const Page = ({ params }) => {
 				<Image src={album.images[0].src} width={album.images[0].width} height={album.images[0].height} alt={album.name} className="w-[150px] aspect-square rounded-md" priority={true} />
 				<div className="flex justify-center flex-col gap-4">
 					<h1 className="text-3xl">{album.name}</h1>
+					<h2 className="text-md">Album • {new Date(album.release_date).getFullYear()}</h2>
 					<h2 className="text-md">
-						Album • {new Date(album.release_date).getFullYear()} • {album.total_tracks} {album.total_tracks < 2 ? "song" : "songs"}
+						{tracks.length} {album.total_tracks < 2 ? "song" : "songs"} (of {album.total_tracks})
 					</h2>
-					<button className="cursor-pointer">
+					{/* <button className="cursor-pointer">
 						<BiPlayCircle size={32} className="text-white duration-500 hover:text-green-300" />
-					</button>
+					</button> */}
 				</div>
 			</div>
 			<div>
@@ -101,11 +103,18 @@ const Page = ({ params }) => {
 					<h1 className="w-5/6">Title</h1>
 					<h2 className="w-1/8">Duration</h2>
 				</div>
-				{tracks.map((track) => (
-					<div key={track.trackId} className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded">
+				{tracks.map((track, idx) => (
+					<div
+						key={track.trackId}
+						className="flex py-4 hover:bg-slate-700 duration-500 items-center rounded"
+						onMouseEnter={() => setHoverTrack(track)}
+						onMouseLeave={() => setHoverTrack(null)}
+					>
 						<div className="w-1/24 flex items-center justify-center">
 							<button className="cursor-pointer" onClick={() => togglePlay(track)}>
-								{playing && activeTrack?.trackId === track.trackId ? (
+								{!(activeTrack?.trackId === track.trackId || (hoverTrack && hoverTrack?.trackId === track.trackId)) ? (
+									<h1>{idx + 1}</h1>
+								) : playing ? (
 									<BiPauseCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
 								) : (
 									<BiPlayCircle size={24} className={`text-white`} color={`${activeTrack?.trackId === track.trackId ? "green" : "white"}`} />
