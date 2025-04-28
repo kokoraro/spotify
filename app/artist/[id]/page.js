@@ -11,25 +11,29 @@ import GridAlbumView from "@/components/GridAlbumView";
 import ListAlbumView from "@/components/ListAlbumView";
 import { setAlbums } from "@/app/redux/slices/albumSlice";
 import AllSongs from "@/components/AllSongs";
+import Loading from "@/components/Loader";
 
 const ArtistPage = ({ params }) => {
 	const [view, setView] = useState("grid");
 	const { id } = React.use(params);
 	const artist = useSelector((state) => state.artists.data.find((artist) => artist.spotifyId === id));
-	const albums = useSelector(state => state.albums.data)
+	const albums = useSelector((state) => state.albums.data);
 	const dispatch = useDispatch();
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		if (!!id) {
-			console.log(id)
+			console.log(id);
 			const fetchAlbum = async (id) => {
 				const res = await fetch("/api/albums?artist=" + id);
 				const data = await res.json();
 
-				dispatch(setAlbums(data.data))
+				dispatch(setAlbums(data.data));
 			};
 
+			setLoading(true);
 			fetchAlbum(id);
+			setLoading(false);
 		}
 	}, [id, dispatch]);
 
@@ -71,7 +75,7 @@ const ArtistPage = ({ params }) => {
 					</button>
 				</div>
 			</div>
-			{albums && albums.length > 0 && view !== "all" ? (
+			{!loading && albums && albums.length > 0 && view !== "all" ? (
 				<div className={`${view == "grid" ? "grid grid-cols-6 gap-10" : "flex flex-col gap-5"} mt-10`}>
 					{albums.map((album) =>
 						view === "grid" ? (
@@ -83,7 +87,8 @@ const ArtistPage = ({ params }) => {
 								date={album.release_date}
 								songs={album.total_tracks}
 							/>
-						) : ( // Fixed typo here
+						) : (
+							// Fixed typo here
 							<ListAlbumView
 								id={album.albumId}
 								key={album.albumId} // Move key prop here
@@ -95,9 +100,10 @@ const ArtistPage = ({ params }) => {
 						)
 					)}
 				</div>
-			) : (artist &&
-				<AllSongs artistId={artist.spotifyId} />
+			) : (
+				!loading && artist && albums.length > 0 && <AllSongs artistId={artist.spotifyId} />
 			)}
+			{loading && <Loading />}
 		</div>
 	);
 };

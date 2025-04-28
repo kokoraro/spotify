@@ -48,9 +48,6 @@ function Sidebar() {
 				<div>
 					<div className="flex justify-between border-b pb-2 border-b-slate-700">
 						<h2 className="text-xl">My Favorite</h2>
-						<button>
-							<BiPlus size={24} />
-						</button>
 					</div>
 					{loading == "auth" ? <Loading title="Authenticating" /> : loading == "fetch" && <Loading title="Fetching Artists" />}
 
