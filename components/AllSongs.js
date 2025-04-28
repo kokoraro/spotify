@@ -32,6 +32,7 @@ const AllSongs = ({ artistId }) => {
 		};
 
 		fetchTracks();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
