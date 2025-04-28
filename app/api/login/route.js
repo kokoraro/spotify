@@ -1,5 +1,5 @@
 import connectDB from "@/utils/db";
-import spotifyApi from "../spotify"; // Import the shared SpotifyWebApi instance
+import spotifyApi from "../spotify";
 
 export async function GET(req) {
 	const data = await spotifyApi.clientCredentialsGrant();
