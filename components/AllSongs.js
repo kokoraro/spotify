@@ -2,6 +2,7 @@
 import { formatDuration } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { BiPauseCircle, BiPlayCircle } from "react-icons/bi";
+import Loading from "./Loader";
 
 const AllSongs = ({ artistId }) => {
 	const [tracks, setTracks] = useState([]);
@@ -9,6 +10,7 @@ const AllSongs = ({ artistId }) => {
 	const [activeTrack, setActiveTrack] = useState(null);
 	const [hoverTrack, setHoverTrack] = useState(null);
 	const audioRef = useRef(null);
+	const [loading, setLoading] = useState(true);
 
 	const togglePlay = (track) => {
 		if (activeTrack !== track) {
@@ -21,10 +23,12 @@ const AllSongs = ({ artistId }) => {
 
 	useEffect(() => {
 		const fetchTracks = async () => {
+			setLoading(true);
 			const response = await fetch("/api/tracks?artist=" + artistId);
 			const res = await response.json();
 
 			setTracks(res.data);
+			setLoading(false);
 		};
 
 		fetchTracks();
@@ -64,7 +68,8 @@ const AllSongs = ({ artistId }) => {
 				<h1 className="w-5/6">Title</h1>
 				<h2 className="w-1/8">Duration</h2>
 			</div>
-			{tracks &&
+			{!loading &&
+				tracks &&
 				tracks.length > 0 &&
 				tracks.map((track, idx) => (
 					<div
@@ -89,6 +94,7 @@ const AllSongs = ({ artistId }) => {
 						<h1 className="w-1/8">{formatDuration(track.duration_ms)}</h1>
 					</div>
 				))}
+			{loading && <Loading />}
 		</div>
 	);
 };

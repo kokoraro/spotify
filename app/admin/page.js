@@ -16,8 +16,9 @@ const Admin = () => {
 	const [stage, setStage] = useState("init");
 	const [readAlbum, setReadAlbum] = useState(0);
 	const [totalAlbums, setTotalAlbums] = useState(0);
-	const [from, setFrom] = useState(0);
-	const [until, setUntil] = useState(0);
+	const [going, setGoing] = useState(false);
+	// const [from, setFrom] = useState(0);
+	// const [until, setUntil] = useState(0);
 
 	const artists = useSelector((state) => state.artists.data);
 
@@ -56,65 +57,59 @@ const Admin = () => {
 	};
 
 	const updateList = async () => {
-		let totalRead = 0;
+		setGoing(true);
 		// Fetch current Artists List
-		const res = await fetch(`/api/artists`);
-		const data = await res.json();
-		const artists = data?.data;
+		// const res = await fetch(`/api/artists`);
+		// const data = await res.json();
+		// const artists = data?.data;
 
 		// Get updated Artists Data
-		const artistIds = artists.map((artist) => artist.spotifyId);
-		for (const artistId of artistIds) {
-			setStage("fetch_albums");
-			const res = await fetch(`/api/spotify/artists?id=${artistId}`);
-			const data = await res.json();
-			const albumIds = data.data;
+		// const artistIds = artists.map((artist) => artist.spotifyId);
 
-			console.log(albumIds);
-			setStage("fetch_tracks");
-			setTotalAlbums(albumIds.length);
-			for (const id of albumIds) {
-				setReadAlbum((prev) => prev + 1);
-				totalRead++;
-				console.log(totalRead);
-				if (totalRead < from) continue;
-				if (totalRead > until) return;
-				const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
-			}
-			setReadAlbum(0);
-			setStage("init");
-		}
+		// Get the Last Update State
+		const updated = await fetch("/api/spotify/update");
+		const stateRes = await updated.json();
+		const updatedState = stateRes?.data;
+		if (updatedState === "ok") toast("Successfully Updated");
+
+		// for (const artistId of artistIds) {
+		// 	const lastArtistState = updatedState.find((item) => item.artistId === artistId);
+		// 	setStage("fetch_albums");
+		// 	const res = await fetch(`/api/spotify/artists?id=${artistId}`);
+		// 	const data = await res.json();
+		// 	const albumIds = data.data;
+
+		// 	console.log(albumIds);
+		// 	console.log(lastArtistState);
+
+		// 	let startPoint = null;
+
+		// 	if (lastArtistState && lastArtistState.length > 0) {
+		// 		console.log("here");
+		// 		if (lastArtistState.length >= 3) startPoint = lastArtistState[2];
+		// 		else startPoint = lastArtistState[lastArtistState.length - 1];
+		// 	} else {
+		// 		console.log("dkjh");
+		// 		if (lastArtistState.length >= 3) startPoint = lastArtistState[2];
+		// 		else startPoint = lastArtistState[lastArtistState.length - 1];
+		// 	}
+
+		// 	console.log(startPoint);
+		// 	// setStage("fetch_tracks");
+		// 	// setTotalAlbums(albumIds.length);
+		// 	// for (const id of albumIds) {
+		// 	// 	setReadAlbum((prev) => prev + 1);
+		// 	// 	const res = await fetch(`/api/spotify/albums?id=${id}&artistid=${artistId}`);
+		// 	// }
+		// 	// setReadAlbum(0);
+		// 	setStage("init");
+		// }
+		setGoing(false);
 	};
 
 	return (
 		<div className="p-20 w-full">
 			<h1 className="text-4xl mb-5">Settings</h1>
-			<div className="test">
-				<span>From</span>
-				<input
-					type="number"
-					value={from}
-					min={0}
-					max={2900}
-					onChange={(e) => {
-						setFrom(e.target.value);
-						if (until < e.target.value) setUntil(e.target.value);
-					}}
-					className="outline-none ml-3 p-1 border border-green-700 rounded-md mr-8"
-				/>
-				<span>To</span>
-				<input
-					type="number"
-					value={until}
-					onChange={(e) => {
-						setUntil(e.target.value);
-						if (from > e.target.value) setFrom(0);
-					}}
-					min={0}
-					max={3000}
-					className="outline-none ml-3 p-1 border border-green-700 rounded-md mr-8"
-				/>
-			</div>
 			<div className="pl-10 w-full flex flex-col gap-5">
 				<div>
 					<h2 className="text-2xl pb-3 border-b border-b-[#01793456]">Channel</h2>
@@ -146,7 +141,8 @@ const Admin = () => {
 							) : stage === "fetch_tracks" ? (
 								<h1>
 									{" "}
-									<Loading title={`${readAlbum} of ${totalAlbums} Albums`} />
+									{/* <Loading title={`${readAlbum} of ${totalAlbums} Albums`} /> */}
+									<Loading title={`Fetching ${totalAlbums} Albums`} />
 								</h1>
 							) : (
 								<>Hello</>
@@ -160,15 +156,15 @@ const Admin = () => {
 						<h2>Last Update : {"1 day ago"}</h2>
 						<div className="flex w-fit items-center gap-3">
 							<h2>Schedule : </h2>
-							<select className="bg-black p-1 border-b border-b-[#01793456] outline-0">
-								<option value="weekly">1 Week</option>
-								<option value="day">1 Day</option>
-							</select>
+							{/* <select className="bg-black p-1 border-b border-b-[#01793456] outline-0"> */}
+							<div>Weekly</div>
+							{/* <option value="day">1 Day</option> */}
+							{/* </select> */}
 						</div>
 						<div className="ml-auto mr-8 flex gap-6">
-							<button className="rounded-md px-8 py-2 bg-[#017934] cursor-pointer">Save</button>
-							<button className="rounded-md px-5 py-2 bg-[#017934] cursor-pointer" onClick={updateList}>
-								Update Now
+							{/* <button className="rounded-md px-8 py-2 bg-[#017934] cursor-pointer">Save</button> */}
+							<button className="rounded-md py-2 bg-[#017934] duration-500 cursor-pointer w-[200px] shadow-green-700 shadow hover:shadow-blue-500 hover:bg-blue-500" onClick={updateList}>
+								{going ? "Updating..." : "Update Now"}
 							</button>
 						</div>
 					</div>
