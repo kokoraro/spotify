@@ -37,8 +37,8 @@ export async function updateStates() {
 			albums = albums.filter((album, index, self) => index === self.findIndex((a) => a.id === album.id));
 			searchArray = albums.map((each) => each.id);
 		}
-		if (searchArray.length >= 3) {
-			startPoint = searchArray[2];
+		if (searchArray.length >= 2) {
+			startPoint = searchArray[1];
 		} else {
 			startPoint = searchArray[searchArray.length - 1] || null;
 		}
