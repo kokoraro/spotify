@@ -67,8 +67,6 @@ export async function GET(req) {
 			normalizedName = normalizedName.toCapitalize();
 			if (keywords.some((keyword) => normalizedName.toLowerCase().includes(keyword))) continue;
 
-			console.log(normalizedName);
-
 			const preview_urls = await getSpotifyLinks(external_urls);
 			const preview_url = preview_urls?.length > 0 ? preview_urls[0] : "empty";
 
@@ -80,7 +78,6 @@ export async function GET(req) {
 				const newTrack = new Track(newTrackData);
 				await newTrack.save();
 			} else {
-				console.log("Exitsing Track");
 				existingTrack.albumId.push(albumId);
 				await existingTrack.save();
 			}
@@ -140,8 +137,6 @@ export async function GET(req) {
 				let normalizedName = name.split("(")[0].trim();
 				normalizedName = normalizedName.split("-")[0].trim();
 				if (keywords.some((keyword) => normalizedName.toLowerCase().includes(keyword))) continue;
-
-				console.log(normalizedName);
 
 				const preview_urls = await getSpotifyLinks(external_urls);
 				const preview_url = preview_urls.length > 0 ? preview_urls[0] : "empty";

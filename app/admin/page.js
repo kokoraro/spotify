@@ -70,7 +70,8 @@ const Admin = () => {
 		const updated = await fetch("/api/spotify/update");
 		const stateRes = await updated.json();
 		const updatedState = stateRes?.data;
-		if (updatedState === "ok") toast("Successfully Updated");
+		console.log(updatedState);
+		toast("Successfully Updated");
 
 		// for (const artistId of artistIds) {
 		// 	const lastArtistState = updatedState.find((item) => item.artistId === artistId);
