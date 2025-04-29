@@ -47,7 +47,7 @@ export async function updateStates() {
 
 		let tracksIds = [];
 
-		console.log(startPoint, albums, searchArray);
+		console.log(startPoint, searchArray, focusArray);
 
 		for (const id of focusArray) {
 			let tracksResponse = await spotifyApi.getAlbumTracks(id);
@@ -90,17 +90,21 @@ export async function updateStates() {
 				const existingTrack = await Track.findOne({ name: newTrackData.name });
 
 				if (!existingTrack) {
+					console.log("updated");
 					const newTrack = new Track(newTrackData);
 					await newTrack.save();
 				} else {
 					if (!existingTrack.albumId.includes(id)) {
+						console.log("new album");
 						existingTrack.albumId.push(id);
 						await existingTrack.save();
+					} else {
+						console.log("exist");
 					}
 				}
 			}
 		}
-		const newState = { artistId: artist.spotifyId, albumId: tracksIds, time: new Date() };
+		const newState = { artistId: artist.spotifyId, albumId: searchArray, time: new Date() };
 
 		const existingState = await State.findOne({ artistId: artist.spotifyId });
 		if (existingState) {
