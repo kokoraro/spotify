@@ -10,7 +10,7 @@ function Home() {
 			<div className="mt-10 flex justify-center text-2xl pb-10 border-b border-b-slate-800">My Favorite Artists</div>
 			<h1>
 				<AiFillWarning />
-				My Upwork account is currently blocked. I'm in touch with the Upwork support team to resolve the issue. In the meantime, please feel free to email me so we can discuss the project.
+				My Upwork account is currently blocked. I am in touch with the Upwork support team to resolve the issue. In the meantime, please feel free to email me so we can discuss the project.
 				<br />
 				Here are my contact details. Email: oleksandrkhomenko57@gmail.com Telegram: @smartec414
 			</h1>
