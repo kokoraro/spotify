@@ -1,30 +1,20 @@
-"use client";
-import Card from "@/components/Card";
-import { useSelector } from "react-redux";
-import { AiFillWarning } from "react-icons/ai";
+import Link from "next/link";
+import React from "react";
 
-function Home() {
-	const artists = useSelector((state) => state.artists.data);
+const Home = () => {
 	return (
-		<div className="flex flex-col w-full p-5 px-20">
-			<div className="mt-10 flex justify-center text-2xl pb-10 border-b border-b-slate-800">My Favorite Artists</div>
-			<h1>
-				<AiFillWarning />
-				My Upwork account is currently blocked. I am in touch with the Upwork support team to resolve the issue. In the meantime, please feel free to email me so we can discuss the project.
-				<br />
-				Here are my contact details. Email: oleksandrkhomenko57@gmail.com Telegram: @smartec414
-			</h1>
-			<div className="flex justify-between mt-20 mx-10">
-				{artists &&
-					artists.length > 0 &&
-					artists.map((item, index) => (
-						<div className="w-1/5" key={index}>
-							<Card title={item?.name} link={item?.spotifyId} />
-						</div>
-					))}
+		<div className="flex h-full w-full justify-center flex-col gap-12 items-center">
+			<div className="rounded-md p-8 border shadow-md">
+				My Upwork account is currently blocked. I am in touch with the Upwork support team to resolve the issue. <br />
+				In the meantime, please feel free to email me so I can hand over my work. Here is my github email. <br />
+				<h2 className="text-2xl text-center mt-5">oleksandrkhomenko57@gmail.com</h2>
 			</div>
+
+			<Link href="/main" className="px-5 rounded-md py-2 bg-green-600">
+				Go to the main page
+			</Link>
 		</div>
 	);
-}
+};
 
 export default Home;
